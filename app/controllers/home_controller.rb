@@ -1,6 +1,6 @@
 class HomeController < ApplicationController
   def index
-  #binding.pry
-  # @message  = "ぴーこ"
+  # binding.pry
+  @message  = "ぴーこ"
   end
 end
