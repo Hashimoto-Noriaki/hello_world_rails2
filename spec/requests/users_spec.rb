@@ -22,32 +22,85 @@ RSpec.describe "Users", type: :request do
     let(:user_id){ user.id}
     let(:user) { create(:user) }
 
-    fit "そのユーザーのレコードが取得できる" do
-      subject
-      binding.pry
+    it "そのユーザーのレコードが取得できる" do
+      subject 
+      
+      res = JSON.parse(response.body)
+      expect(res["name"]).to eq user.name
+      expect(res["account"]).to eq user.account
+      expect(res["email"]).to eq user.email
+
       expect(response).to have_http_status(200)
    end
    end
     
     context "指定したidのユーザーが存在しない時" do
-      it "ユーザーが見つからない" do
+      let(:user_id){ 10000000000}
+
+    it "ユーザーが見つからない" do
+      expect{subject}.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+  end  
+
+  describe  "POST/users" do
+    subject {post(users_path,params: params)}
+    
+    context "適切なパラメーターを送信した時" do
+    let(:params) do 
+      {user: attributes_for(:user)}
+  end 
+    # {
+      #   name: "piko",
+      #   account: "piko",
+      #   email: "piko@example.com"
+      # }
+    
+      it "ユーザーのレコードを作成できる" do
+        expect {subject}.to change {User.count}.by(1)
+        res = JSON.parse(response.body)
+        expect(res["name"]).to eq params[:user][:name]
+        expect(res["account"]).to eq params[:user][:account]
+        expect(res["email"]).to eq params[:user][:email]
+        expect(response).to have_http_status(200)
+      end
+    end
+    context "不適切なパラメーターを送信したとき" do
+      let(:params) { attributes_for(:user)}
+    
+      it "エラーする" do  
+        expect {subject}.to raise_error(ActionController::ParameterMissing)
       end
     end
   end
+  
 
-  describe  "POST/users" do
-    it "ユーザーのレコードを作成できる" do
-    end
+describe  "PATCH/users/:id" do
+  subject {patch(user_path(user_id),params: params)}
+    
+  let(:params) do
+    {user: { name: Faker::Name.name,created_at:1.week.ago}}
   end
+  let(:user_id) {user.id}
+  let(:user) {create(:user)}
 
-  describe  "PATCH/users/:id" do
-    it "任意のユーザーのレコードを更新できる" do
+  it "任意のユーザーのレコードを更新できる" do
+    expect{subject}.to change{user.reload.name}.from(user.name).to(params[:user][:name]) &#どう変わるか
+                    not_change {user.reload.account} & #変わらないこと
+                    not_change {user.reload.email} &#変わらないこと
+                    not_change {user.reload.created_at}#変わらないこと
     end
   end
 
   describe "DELETE/users/:id" do
-    it "任意のユーザーのレコードを削除できる" do
+    subject{delete(user_path(user_id))}
+    let (:user_id){user.id}
+    let!(:user){create(:user)}
+
+    fit "任意のユーザーのレコードを削除できる" do
+      expect {subject}.to change {User.count}.by(-1)
+
     end
   end
-
 end
+
