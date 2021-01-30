@@ -1,8 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_article, only: [:show, :update,:destroy]
   
-  
-  
   def index
   @users = User.all
   render json: @users
@@ -19,7 +17,6 @@ class UsersController < ApplicationController
     #   account: params[:account],
     #   email: params[:email],
     # )
-    
     @user = User.new(user_params)
       #インスタンスをDBに保存する
       @user.save!
@@ -52,7 +49,13 @@ private
     params.require(:user).permit(:name, :account, :email)
   end
 
+  
+
   def set_user
+    @user = User.find(params[:id])
+  end
+
+  def set_article
     @user = User.find(params[:id])
   end
 end
