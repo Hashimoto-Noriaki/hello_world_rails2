@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_09_095154) do
+ActiveRecord::Schema.define(version: 2021_01_30_160942) do
 
   create_table "articles", charset: "utf8", force: :cascade do |t|
     t.string "title"
@@ -46,12 +46,11 @@ ActiveRecord::Schema.define(version: 2021_01_09_095154) do
   end
 
   create_table "users", charset: "utf8", force: :cascade do |t|
-    t.string "account"
     t.string "name"
+    t.string "account"
     t.string "email"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    
   end
 
   add_foreign_key "articles", "users"
